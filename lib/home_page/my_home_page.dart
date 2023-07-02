@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import './play_state_provider.dart';
 import './play_button.dart';
 
 /// ホームページ
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends ConsumerWidget {
   const MyHomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bool isPlaying = ref.watch(playStateProvider);
 
-class _MyHomePageState extends State<MyHomePage> {
-  bool isPlaying = false;
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -23,9 +20,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: PlayButton(
           isPlaying: isPlaying,
           onClicked: () {
-            setState(() {
-              isPlaying = !isPlaying;
-            });
+            // 再生状態を反転させる
+            ref.read(playStateProvider.notifier).toggle();
           },
         ),
       ),

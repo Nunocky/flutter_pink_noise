@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   just_audio: ^0.9.34
   flutter_riverpod: ^2.3.6
+  logger: ^1.4.0
 
 dev_dependencies:
   flutter_test:
