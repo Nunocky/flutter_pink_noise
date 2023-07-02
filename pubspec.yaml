@@ -36,6 +36,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   just_audio: ^0.9.34
+  flutter_riverpod: ^2.3.6
 
 dev_dependencies:
   flutter_test:
@@ -60,9 +61,7 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  assets:
-    - images/play_circle.png
-    - images/pause_circle.png
+  # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
