@@ -39,6 +39,7 @@ dependencies:
   flutter_riverpod: ^2.3.6
   logger: ^1.4.0
   audio_session: ^0.1.16
+  sprintf: "^7.0.0"
 
 dev_dependencies:
   flutter_test:
