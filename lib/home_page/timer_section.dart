@@ -59,7 +59,7 @@ class TimerSection extends StatelessWidget {
               radius: 24,
               child: IconButton(
                 onPressed: () {
-                  onTimerOffButtonClicked?.call();
+                  onTimerOnButtonClicked?.call();
                 },
                 icon: const Icon(Icons.timer),
               ),
