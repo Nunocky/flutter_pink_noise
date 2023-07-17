@@ -11,17 +11,13 @@ import './play_state_provider.dart';
 final logger = Logger();
 
 /// ホームページ
-class MyHomePage extends ConsumerWidget {
+class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
 
   final _controller = TimePickerController();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final playState = ref.watch(playStateProvider);
-    final timer = ref.watch(timerProvider);
-    final remainingSecond = timer.remainingTime.inSeconds;
-
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -33,30 +29,48 @@ class MyHomePage extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                TimerSection(
-                  isPlaying: playState.isPlaying,
-                  remainingSeconds: remainingSecond,
-                  onTimerSetButtonClicked: () {
-                    _onTimerSetButtonClicked(context, ref);
-                  },
-                  onTimerOffButtonClicked: () {
-                    _onTimerOffButtonClicked(context, ref);
-                  },
-                  onTimerOnButtonClicked: () {
-                    _onTimerOnButtonClicked(context, ref);
-                  },
-                ),
+                Consumer(builder: (context, ref, _) {
+                  final playState = ref.watch(playStateProvider);
+                  final timer = ref.watch(timerProvider);
+                  final remainingSecond = timer.remainingTime.inSeconds;
+
+                  return TimerSection(
+                    isPlaying: playState.isPlaying,
+                    remainingSeconds: remainingSecond,
+                    onTimerSetButtonClicked: () {
+                      _onTimerSetButtonClicked(context, ref);
+                    },
+                    onTimerOffButtonClicked: () {
+                      _onTimerOffButtonClicked(context, ref);
+                    },
+                    onTimerOnButtonClicked: () {
+                      _onTimerOnButtonClicked(context, ref);
+                    },
+                  );
+                }),
               ],
             ),
           ),
-          PlayButton(
-            isPlaying: playState.isPlaying,
-            onClicked: () {
-              // 再生状態を反転させる
-              ref.read(playStateProvider.notifier).toggle();
-            },
-          ),
+          Consumer(builder: (context, ref, _) {
+            final playState = ref.watch(playStateProvider);
+            return PlayButton(
+              isPlaying: playState.isPlaying,
+              onClicked: () {
+                // 再生状態を反転させる
+                ref.read(playStateProvider.notifier).toggle();
+              },
+            );
+          }),
           const Spacer(),
+
+          // タイマーが0になったら再生を停止する
+          Consumer(builder: (context, ref, _) {
+            final timer = ref.watch(timerProvider);
+            if (timer.remainingTime.inSeconds == 0) {
+              ref.read(playStateProvider.notifier).stop();
+            }
+            return Container();
+          }),
         ],
       ),
     );
