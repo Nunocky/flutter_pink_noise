@@ -28,6 +28,7 @@ class TimerProvider extends ChangeNotifier {
   Duration get remainingTime => _remainingTime;
 
   void startTimer() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingTime.inSeconds == 0) {
         stopTimer();
@@ -41,7 +42,7 @@ class TimerProvider extends ChangeNotifier {
   void stopTimer() {
     _timer?.cancel();
     _timer = null;
-//    _remainingTime = _selectedTime;
+    _remainingTime = const Duration(seconds: 0);
     notifyListeners();
   }
 }

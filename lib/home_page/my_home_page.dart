@@ -7,7 +7,6 @@ import './time_picker_widget.dart';
 import './timer_section.dart';
 import './play_button.dart';
 import './play_state_provider.dart';
-import './timer_provider.dart';
 
 final logger = Logger();
 
@@ -19,9 +18,8 @@ class MyHomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isPlaying = ref.watch(playStateProvider);
+    final playState = ref.watch(playStateProvider);
     final timer = ref.watch(timerProvider);
-
     final remainingSecond = timer.remainingTime.inSeconds;
 
     return Scaffold(
@@ -36,7 +34,7 @@ class MyHomePage extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 TimerSection(
-                  isPlaying: isPlaying,
+                  isPlaying: playState.isPlaying,
                   remainingSeconds: remainingSecond,
                   onTimerSetButtonClicked: () {
                     _onTimerSetButtonClicked(context, ref);
@@ -52,7 +50,7 @@ class MyHomePage extends ConsumerWidget {
             ),
           ),
           PlayButton(
-            isPlaying: isPlaying,
+            isPlaying: playState.isPlaying,
             onClicked: () {
               // 再生状態を反転させる
               ref.read(playStateProvider.notifier).toggle();
@@ -65,11 +63,25 @@ class MyHomePage extends ConsumerWidget {
   }
 
   /// タイマー時間変更ボタンをタップ
-  void _onTimerSetButtonClicked(BuildContext context, WidgetRef ref) {}
+  void _onTimerSetButtonClicked(BuildContext context, WidgetRef ref) {
+    showTimerSetDialog(context, ref);
+  }
 
   /// タイマー開始ボタンをタップ
   void _onTimerOnButtonClicked(BuildContext context, WidgetRef ref) async {
-//    logger.d("_onTimerOnButtonClicked");
+    showTimerSetDialog(context, ref);
+  }
+
+  /// タイマー停止ボタンをタップ
+  void _onTimerOffButtonClicked(BuildContext context, WidgetRef ref) {
+    // stop playing and timer
+    ref.read(timerProvider.notifier).selectedTime = const Duration(seconds: 0);
+    ref.read(timerProvider.notifier).stopTimer();
+    ref.read(playStateProvider.notifier).stop();
+  }
+
+  /// タイマー設定ダイアログの表示と処理
+  void showTimerSetDialog(BuildContext context, WidgetRef ref) async {
     final time = await showDialog<Duration?>(
         context: context,
         builder: (context) {
@@ -107,17 +119,18 @@ class MyHomePage extends ConsumerWidget {
 
     if (time != null) {
       // タイマー時間を更新する
-      // ref.read(playStateProvider.notifier).setTimer(time); // 未実装
       ref.read(timerProvider.notifier).selectedTime = time;
-      logger.d("timer set: $time");
+      if (0 < time.inSeconds) {
+        ref.read(playStateProvider.notifier).start();
+        ref.read(timerProvider.notifier).startTimer();
+      } else {
+        // timer is set to 0 -> stop playing
+        ref.read(playStateProvider.notifier).stop();
+        ref.read(timerProvider.notifier).stopTimer();
+      }
     } else {
-      logger.d("timer set: cancelled");
+      // logger.d("timer set: cancelled");
+      // do nothing
     }
-  }
-
-  /// タイマー停止ボタンをタップ
-  void _onTimerOffButtonClicked(BuildContext context, WidgetRef ref) {
-    // TODO(nunokawa) IMPLEMENT THIS
-    logger.d("_onTimerOffButtonClicked");
   }
 }
