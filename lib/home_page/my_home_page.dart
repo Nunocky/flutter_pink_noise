@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_pink_noise/home_page/timer_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 
+import './timer_provider.dart';
 import './time_picker_widget.dart';
 import './timer_section.dart';
 import './play_button.dart';
@@ -69,6 +69,7 @@ class MyHomePage extends StatelessWidget {
             final playState = ref.watch(playStateProvider);
             final timer = ref.watch(timerProvider);
             if (timer.isWorking && timer.remainingTime.inSeconds == 0) {
+              /// MEMO : 状態を直接更新すると「ビルド中に再ビルドがかかる」状態になる
               Timer.run(() {
                 Future.delayed(const Duration(milliseconds: 0), () {
                   timer.stopTimer();
