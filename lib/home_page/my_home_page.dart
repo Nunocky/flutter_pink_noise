@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_pink_noise/home_page/timer_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,11 +34,10 @@ class MyHomePage extends StatelessWidget {
                 Consumer(builder: (context, ref, _) {
                   final playState = ref.watch(playStateProvider);
                   final timer = ref.watch(timerProvider);
-                  final remainingSecond = timer.remainingTime.inSeconds;
 
                   return TimerSection(
                     isPlaying: playState.isPlaying,
-                    remainingSeconds: remainingSecond,
+                    remainingSeconds: timer.remainingTime.inSeconds,
                     onTimerSetButtonClicked: () {
                       _onTimerSetButtonClicked(context, ref);
                     },
@@ -57,17 +58,23 @@ class MyHomePage extends StatelessWidget {
               isPlaying: playState.isPlaying,
               onClicked: () {
                 // 再生状態を反転させる
-                ref.read(playStateProvider.notifier).toggle();
+                playState.toggle();
               },
             );
           }),
           const Spacer(),
 
-          // タイマーが0になったら再生を停止する
+          // 動作しているタイマーが0になったら再生を停止する
           Consumer(builder: (context, ref, _) {
+            final playState = ref.watch(playStateProvider);
             final timer = ref.watch(timerProvider);
-            if (timer.remainingTime.inSeconds == 0) {
-              ref.read(playStateProvider.notifier).stop();
+            if (timer.isWorking && timer.remainingTime.inSeconds == 0) {
+              Timer.run(() {
+                Future.delayed(const Duration(milliseconds: 0), () {
+                  timer.stopTimer();
+                  playState.stop();
+                });
+              });
             }
             return Container();
           }),
@@ -89,7 +96,6 @@ class MyHomePage extends StatelessWidget {
   /// タイマー停止ボタンをタップ
   void _onTimerOffButtonClicked(BuildContext context, WidgetRef ref) {
     // stop playing and timer
-    ref.read(timerProvider.notifier).selectedTime = const Duration(seconds: 0);
     ref.read(timerProvider.notifier).stopTimer();
     ref.read(playStateProvider.notifier).stop();
   }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -73,6 +75,11 @@ class PlayStateProvider extends ChangeNotifier {
   }
 
   void start() async {
+    if (_player.playing) {
+      notifyListeners();
+      return;
+    }
+
     final data = await rootBundle.load('assets/audio/pink_noise.mp3');
 
     _player.setAudioSource(
@@ -90,12 +97,15 @@ class PlayStateProvider extends ChangeNotifier {
     final session = await AudioSession.instance;
     await session.configure(const AudioSessionConfiguration.music());
 
-    await _player.play();
+    _player.play();
     notifyListeners();
   }
 
   void stop() async {
-    await _player.stop();
+    if (!_player.playing) {
+      return;
+    }
+    _player.stop();
     notifyListeners();
   }
 }

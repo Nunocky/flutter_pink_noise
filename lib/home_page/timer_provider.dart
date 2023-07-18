@@ -11,6 +11,9 @@ class TimerProvider extends ChangeNotifier {
 
   Duration get selectedTime => _selectedTime;
 
+  bool _isWorking = false;
+  bool get isWorking =>_isWorking;
+
   // set selectedTime(Duration value) {
   //   _selectedTime = value;
   //   _remainingTime = value;
@@ -34,15 +37,18 @@ class TimerProvider extends ChangeNotifier {
         stopTimer();
       } else {
         _remainingTime -= const Duration(seconds: 1);
-        notifyListeners();
       }
+      _isWorking = true;
+      notifyListeners();
     });
   }
 
   void stopTimer() {
     _timer?.cancel();
     _timer = null;
+    _selectedTime = const Duration(seconds: 0);
     _remainingTime = const Duration(seconds: 0);
+    _isWorking = false;
     notifyListeners();
   }
 }
